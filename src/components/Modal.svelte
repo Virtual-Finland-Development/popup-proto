@@ -2,6 +2,7 @@
     import { createEventDispatcher } from 'svelte';
     import ModalContent from './ModalContent.svelte';
     export let isOpenModal;
+    export let state;
 
     const dispatch = createEventDispatcher();
 
@@ -20,7 +21,7 @@
 
 <div id="background" style="--display: {isOpenModal ? 'block' : 'none'}" on:click={closeModal} on:keyup={onKeyUpEvent}></div>
 <div id="modal" style="--display: {isOpenModal ? 'block' : 'none'};">
-    <ModalContent />
+    <ModalContent state={state} />
 </div>
 
 <style>
