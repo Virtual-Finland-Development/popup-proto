@@ -20,10 +20,18 @@
    * The button that opens the modal in the main page
    */
   function initializeTargetButton() {
-    const targetButton = document.getElementById('targetButton');
-    if (targetButton) {
-      targetButton.addEventListener('click', openModal);
+    // @ts-ignore
+    if (document.POPUP_PROTO_PLUGIN_TARGET_BUTTON_ID) {
+      const targetButton = document.getElementById('targetButton');
+      if (targetButton) {
+        targetButton.addEventListener('click', openModal);
+      }
+    } else {
+      document.addEventListener('openPopupProtoPluginModal', () => {
+        openModal();
+      });
     }
+    
   }
 
   async function initializeAuth() {

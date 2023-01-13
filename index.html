@@ -40,6 +40,13 @@
     }
 
     PluginEventsListener.start();
+
+    //POPUP_PROTO_PLUGIN_TARGET_BUTTON_ID = "targetButton"
+    const targetButton = document.querySelector("#targetButton");
+    targetButton.addEventListener("click", () => {
+      window.document.dispatchEvent(new Event("openPopupProtoPluginModal"));
+    });
+
   </script>
   <script type="module" src="/src/main.ts"></script>
 </body>
