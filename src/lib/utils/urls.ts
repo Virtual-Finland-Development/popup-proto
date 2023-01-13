@@ -29,8 +29,11 @@ export function clearUrlParamsFromCurrentUrl(keys: Array<string>, urlParams?: UR
   for (const key of keys) {
     urlParams.delete(key);
   }
+  const cleanedHref = `${window.location.origin}${window.location.pathname}${getCleanUrlParamsString(urlParams)}`;
 
-  window.history.replaceState("", "", `${window.location.origin}${window.location.pathname}${getCleanUrlParamsString(urlParams)}`);
+  if (cleanedHref !== window.location.href) {
+    window.history.replaceState("", "", cleanedHref);
+  }
 }
 
 /**

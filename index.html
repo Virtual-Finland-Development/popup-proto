@@ -10,7 +10,7 @@
 
 <body>
   <div class="pluginTargetArea">
-    <p>Targetted button from the site:</p>
+    <p>Targeted button from the site:</p>
     <button id="targetButton">Open profile data modal</button>
   </div>
 
@@ -18,13 +18,28 @@
 
   </div>
   <script type="text/javascript">
-    window.addEventListener("pluginProfileData", (event) => {
-      console.log("Received event", event);
-      if (event.data.type === "pluginProfileData") {
-        const outputArea = document.querySelector(".pluginEventsOutputArea");
-        outputArea.innerHTML = `<p>Profile data received from plugin:</p><pre>${JSON.stringify(event.data.payload, null, 2)}</pre>`;
+    const PluginEventsListener = {
+      start() {
+        this.log("Listening for plugin events..");
+        window.document.addEventListener("pluginProfileData", this.handleEvent.bind(this));
+      },
+      stop() {
+        this.log("Stopped listening for plugin events..");
+        window.document.removeEventListener("pluginProfileData", this.handleEvent.bind(this));
+      },
+      handleEvent(event) {
+        this.log("Received plugin event", event);
+        if (event.type === "pluginProfileData") {
+          const outputArea = document.querySelector(".pluginEventsOutputArea");
+          outputArea.innerHTML = `<p>Profile data received from plugin:</p><pre>${JSON.stringify(event.detail, null, 2)}</pre>`;
+        }
+      },
+      log(...message) {
+        console.log("[PluginEventsListener]", ...message);
       }
-    });
+    }
+
+    PluginEventsListener.start();
   </script>
   <script type="module" src="/src/main.ts"></script>
 </body>

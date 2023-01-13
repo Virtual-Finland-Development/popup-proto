@@ -2,7 +2,8 @@
   import { onMount } from 'svelte';
   import { redirectToAuthenticationService } from '../lib/authgw/AuthGWService';
   import { fetchUserProfileData } from '../lib/testbed/TestbedAPIService';
-  import { popUrlQueryParamFromCurrentUrl } from '../lib/utils';
+  import { log } from '../lib/utils/logging';
+  import { popUrlQueryParamFromCurrentUrl } from '../lib/utils/urls';
 
     export let state;
     export let closeModal;
@@ -44,11 +45,11 @@
     }
 
     function emitProfileDataToParentSite(profileData) {
-        console.log("Emitting", profileData);
+        log("Emitting", profileData);
         const profileDataEvent = new CustomEvent("pluginProfileData", {
             detail: profileData
         });
-        document.dispatchEvent(profileDataEvent);
+        window.document.dispatchEvent(profileDataEvent);
     }
 </script>
 

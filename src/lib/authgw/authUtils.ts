@@ -1,6 +1,6 @@
 import { Buffer } from "buffer";
 import Settings from "../../Settings";
-import { ensureUrlQueryParams } from "../utils";
+import { ensureUrlQueryParams } from "../utils/urls";
 
 export function generateAppContext(options?: { redirectUrl?: string; queryParams?: { [key: string]: string | number | boolean } }) {
   const queryParams = options?.queryParams ?? {};
