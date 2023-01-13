@@ -24,6 +24,7 @@ class VariableStorage implements Storage {
 export default class State implements IState {
   private variableStorage: Storage = new VariableStorage();
   private callbacks: { [key: string]: ((...args: any[]) => void)[] } = {};
+  private onceCallback: { [key: string]: (...args: any[]) => void } = {};
   private keyPrefix: string;
   private removedBaseKeys: string[] = [];
 
@@ -86,12 +87,22 @@ export default class State implements IState {
     if (this.callbacks[event]) {
       this.callbacks[event].forEach((callback) => callback(...args));
     }
+
+    if (this.onceCallback[event]) {
+      this.onceCallback[event](...args);
+      delete this.onceCallback[event];
+    }
   }
+
   on(event: string, callback: (...args: any[]) => void): void {
     if (!this.callbacks[event]) {
       this.callbacks[event] = [];
     }
     this.callbacks[event].push(callback);
+  }
+
+  once(event: string, callback: (...args: any[]) => void): void {
+    this.onceCallback[event] = callback;
   }
 
   private resolveKeyActual(key: string) {

@@ -21,7 +21,7 @@
 
 <div id="background" style="--display: {isOpenModal ? 'block' : 'none'}" on:click={closeModal} on:keyup={onKeyUpEvent}></div>
 <div id="modal" style="--display: {isOpenModal ? 'block' : 'none'};">
-    <ModalContent state={state} />
+    <ModalContent state={state} closeModal={closeModal} />
 </div>
 
 <style>
@@ -45,5 +45,6 @@
         background: #fff;
         color: #333;
         filter: drop-shadow(0 0 20px #333);
+        border-radius: 5px;
     }
 </style>

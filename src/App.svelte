@@ -10,12 +10,10 @@
 
   function openModal() {
     isOpenModal = true;
-    state.set("sessionStorage::modalWasOpen", true);
   }
 
   function closeModal() {
     isOpenModal = false;
-    state.remove("sessionStorage::modalWasOpen");
   }
 
   /**
@@ -31,18 +29,10 @@
   async function initializeAuth() {
     await AuthEventsListener(state);
   }
-
-  function initializeModalState() {
-    if (state.is("sessionStorage::modalWasOpen")) {
-      isOpenModal = true;
-      state.remove("sessionStorage::modalWasOpen");
-    } 
-  }
-  
+ 
   onMount(async () => {  
     await initializeAuth();
     initializeTargetButton();
-    initializeModalState();
   });
 
 </script>

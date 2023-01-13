@@ -1,3 +1,4 @@
+import { clearUrlParamsFromCurrentUrl } from "../utils";
 import { fetchLoggedInState } from "./AuthGWService";
 
 export default async function AuthEventsListener(state: IState) {
@@ -13,13 +14,13 @@ export default async function AuthEventsListener(state: IState) {
       try {
         const loggedInState = await fetchLoggedInState(loginCode);
         state.set("sessionStorage::loggedIn", loggedInState);
+        console.log("Logged in");
       } catch (error) {
         console.error("Failed to fetch auth token", error);
       }
 
-      urlParams.delete("loginCode");
-      urlParams.delete("provider");
-      window.history.replaceState("", "", `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`);
+      // Clear loginCode and provider from URL
+      clearUrlParamsFromCurrentUrl(["loginCode", "provider"], urlParams);
     }
   }
 }

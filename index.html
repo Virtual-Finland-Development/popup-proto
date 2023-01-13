@@ -9,7 +9,23 @@
 </head>
 
 <body>
-  <button id="targetButton">Target button from the site</button>
+  <div class="pluginTargetArea">
+    <p>Targetted button from the site:</p>
+    <button id="targetButton">Open profile data modal</button>
+  </div>
+
+  <div class="pluginEventsOutputArea">
+
+  </div>
+  <script type="text/javascript">
+    window.addEventListener("pluginProfileData", (event) => {
+      console.log("Received event", event);
+      if (event.data.type === "pluginProfileData") {
+        const outputArea = document.querySelector(".pluginEventsOutputArea");
+        outputArea.innerHTML = `<p>Profile data received from plugin:</p><pre>${JSON.stringify(event.data.payload, null, 2)}</pre>`;
+      }
+    });
+  </script>
   <script type="module" src="/src/main.ts"></script>
 </body>
 

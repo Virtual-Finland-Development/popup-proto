@@ -1,8 +1,9 @@
 import Settings from "../../Settings";
-import { generateAppContext } from "./utils";
+import { generateAppContext } from "./authUtils";
 
-export function redirectToAuthenticationService() {
-  const redirectUrl = `${Settings.authenticationService}/auth/openid/testbed/authentication-request?appContext=${generateAppContext()}`;
+export function redirectToAuthenticationService(options?: { redirectUrl?: string; queryParams?: { [key: string]: string | number | boolean } }) {
+  const redirectUrl = `${Settings.authenticationService}/auth/openid/testbed/authentication-request?appContext=${generateAppContext(options)}`;
+  console.log("TERE", redirectUrl);
   window.location.href = redirectUrl;
 }
 

@@ -2,50 +2,70 @@
   import { onMount } from 'svelte';
   import { redirectToAuthenticationService } from '../lib/authgw/AuthGWService';
   import { fetchUserProfileData } from '../lib/testbed/TestbedAPIService';
+  import { popUrlQueryParamFromCurrentUrl } from '../lib/utils';
 
     export let state;
-    let profileData = undefined;
+    export let closeModal;
 
-    function clickFetchProfileDataBtn() {
+    let isLoading = false;
+
+    function onFetchProfileDataBtnClick() {
         if (state.is("sessionStorage::loggedIn")) {
             fetchProfileData();
-            return;
+            closeModal();
+        } else {
+            redirectToAuthenticationService({ queryParams: { vfAuthFlowEngaged: true }})
         }
-        redirectToAuthenticationService();
     }
 
-    async function initialize() {
-        if (state.was("sessionStorage::modalWasOpen")) {
+    onMount(async () => {
+        // Coming back from the authentication service redirect
+        if (popUrlQueryParamFromCurrentUrl("vfAuthFlowEngaged")) {
             if (state.is("sessionStorage::loggedIn")) {
-                return await fetchProfileData();
+                await fetchProfileData();
+            } else {
+                state.once("sessionStorage::loggedIn::set", fetchProfileData)
             }
         }
-        return null;
-    }
+    });
 
     async function fetchProfileData() {
         if (!state.is("sessionStorage::loggedIn")) {
             throw new Error("Bad call: user is not logged in");
         }
-        profileData = undefined;
         const { idToken } = state.get("sessionStorage::loggedIn");
-        return await fetchUserProfileData(idToken);
+        isLoading = true;
+        const profileData = await fetchUserProfileData(idToken);
+        isLoading = false;
+
+        emitProfileDataToParentSite(profileData);
+
+        return profileData;
     }
 
-    onMount(async () => {
-        profileData = await initialize();
-    });
-
-
+    function emitProfileDataToParentSite(profileData) {
+        console.log("Emitting", profileData);
+        const profileDataEvent = new CustomEvent("pluginProfileData", {
+            detail: profileData
+        });
+        document.dispatchEvent(profileDataEvent);
+    }
 </script>
 
 <div class="testbedContent">
-    {#if typeof profileData === "undefined"}
-        Loading..
-    {:else if profileData !== null}
-        <p>Profile data:</p>
-        <pre>{JSON.stringify(profileData, null, 2)}</pre>
+    <h3>Testbed modal</h3>
+    <div class="modalContent">
+    {#if isLoading}
+        <p>Loading..</p>
     {:else}
-        <button on:click={clickFetchProfileDataBtn}>Fetch profile data</button>
+        <button on:click={onFetchProfileDataBtnClick}>Fetch profile data</button>
     {/if}
+    </div>
 </div>
+
+<style>
+    .testbedContent {
+        padding: 1rem;
+        background: inherit;
+    }
+</style>
