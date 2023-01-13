@@ -2,7 +2,7 @@ import { Buffer } from "buffer";
 import Settings from "../../Settings";
 import { ensureUrlQueryParams } from "../utils/urls";
 
-export function generateAppContext(options?: { redirectUrl?: string; queryParams?: { [key: string]: string | number | boolean } }) {
+export function generateAppContext(options?: { redirectUrl?: string | URL; queryParams?: { [key: string]: string | number | boolean } }) {
   const queryParams = options?.queryParams ?? {};
   const comeBackUrl = options?.redirectUrl ?? window.location.href;
   const redirectUrl = ensureUrlQueryParams(comeBackUrl, queryParams);

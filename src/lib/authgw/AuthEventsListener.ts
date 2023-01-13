@@ -7,6 +7,8 @@ export default async function AuthEventsListener(state: IState) {
 
   const affectsThisApp = urlParams.has("provider") && urlParams.get("provider").toLowerCase() === "testbed";
   if (affectsThisApp && !state.is("sessionStorage::loggedIn")) {
+    const cleanupQueryParams = ["provider"];
+
     if (urlParams.has("loginCode")) {
       //
       // Handle login response
@@ -19,9 +21,16 @@ export default async function AuthEventsListener(state: IState) {
       } catch (error) {
         logging.logError("Failed to fetch auth token", error);
       }
-
-      // Clear loginCode and provider from URL
-      clearUrlParamsFromCurrentUrl(["loginCode", "provider"], urlParams);
+      // Cleanup auth query params
+      cleanupQueryParams.push("loginCode");
     }
+    if (urlParams.has("consentStatus")) {
+      // Cleanup consent query params
+      cleanupQueryParams.push("consentStatus");
+      cleanupQueryParams.push("consentToken");
+      cleanupQueryParams.push("dataSource");
+    }
+
+    clearUrlParamsFromCurrentUrl(cleanupQueryParams, urlParams);
   }
 }

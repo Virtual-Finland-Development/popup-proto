@@ -116,6 +116,8 @@ export default class State implements IState {
       return sessionStorage;
     } else if (baseKey.startsWith("localStorage::")) {
       return localStorage;
+    } else if (baseKey.startsWith("variableStorage::")) {
+      return this.variableStorage;
     }
     return this.variableStorage;
   }

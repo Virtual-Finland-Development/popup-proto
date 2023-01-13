@@ -27,7 +27,9 @@ export function clearUrlParamsFromCurrentUrl(keys: Array<string>, urlParams?: UR
     urlParams = new URLSearchParams(window.location.search);
   }
   for (const key of keys) {
-    urlParams.delete(key);
+    if (urlParams.has(key)) {
+      urlParams.delete(key);
+    }
   }
   const cleanedHref = `${window.location.origin}${window.location.pathname}${getCleanUrlParamsString(urlParams)}`;
 
@@ -42,7 +44,7 @@ export function clearUrlParamsFromCurrentUrl(keys: Array<string>, urlParams?: UR
  * @param queryParams
  * @returns
  */
-export function ensureUrlQueryParams(url: string, queryParams: { [key: string]: string | number | boolean }): string {
+export function ensureUrlQueryParams(url: string | URL, queryParams: { [key: string]: string | number | boolean }): string {
   const urlObj = new URL(url);
   const urlParams = new URLSearchParams(urlObj.search);
 

@@ -22,3 +22,11 @@ type IState = {
    */
   once(event: string, callback: (...args: any[]) => void): void;
 };
+
+type IConsentSituation = {
+  consentStatus: string;
+  consentToken?: string;
+  redirectUrl?: string;
+};
+
+type UrlQueryParams = { [key: string]: string | number | boolean };

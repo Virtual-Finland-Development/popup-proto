@@ -1,15 +1,17 @@
 <script>
-  import { onMount } from 'svelte';
-  import { redirectToAuthenticationService } from '../lib/authgw/AuthGWService';
-  import { fetchUserProfileData } from '../lib/testbed/TestbedAPIService';
-  import { log } from '../lib/utils/logging';
-  import { popUrlQueryParamFromCurrentUrl } from '../lib/utils/urls';
+    import { onMount } from 'svelte';
+    import { fetchUserProfileDataConsent, redirectToAuthenticationService, redirectToConsentService } from '../lib/authgw/AuthGWService';
+    import { fetchUserProfileData } from '../lib/testbed/TestbedAPIService';
+    import { log } from '../lib/utils/logging';
+    import { popUrlQueryParamFromCurrentUrl } from '../lib/utils/urls';
+    const USER_PROFILE_CONSENT_SOURCE = "dpp://access_to_finland@testbed.fi/test/lassipatanen/User/Profile";
 
     export let state;
     export let closeModal;
 
     let isLoading = false;
 
+  
     function onFetchProfileDataBtnClick() {
         if (state.is("sessionStorage::loggedIn")) {
             fetchProfileData();
@@ -19,6 +21,7 @@
         }
     }
 
+    
     onMount(async () => {
         // Coming back from the authentication service redirect
         if (popUrlQueryParamFromCurrentUrl("vfAuthFlowEngaged")) {
@@ -31,17 +34,39 @@
     });
 
     async function fetchProfileData() {
-        if (!state.is("sessionStorage::loggedIn")) {
-            throw new Error("Bad call: user is not logged in");
-        }
+        await checkUserProfileDataConsent();
+        
         const { idToken } = state.get("sessionStorage::loggedIn");
+        const { consentToken } = state.get("variableStorage::consentSituation");
+
         isLoading = true;
-        const profileData = await fetchUserProfileData(idToken);
+        const profileData = await fetchUserProfileData(idToken, consentToken);
         isLoading = false;
 
         emitProfileDataToParentSite(profileData);
 
         return profileData;
+    }
+
+    async function checkUserProfileDataConsent() {
+        if (!state.is("sessionStorage::loggedIn")) {
+            throw new Error("Bad call: user is not logged in");
+        }
+        if (state.is("variableStorage::consentSituation")) {
+            return;
+        }
+
+        const { idToken } = state.get("sessionStorage::loggedIn");
+
+        isLoading = true;
+        const consentSituation = await fetchUserProfileDataConsent(idToken, USER_PROFILE_CONSENT_SOURCE);
+        isLoading = false;
+
+        if (consentSituation.consentStatus === "consentGranted") {
+            state.set("variableStorage::consentSituation", consentSituation);
+        } else {
+            redirectToConsentService(consentSituation, { queryParams: { vfAuthFlowEngaged: true }})
+        }
     }
 
     function emitProfileDataToParentSite(profileData) {

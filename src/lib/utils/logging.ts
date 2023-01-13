@@ -9,3 +9,7 @@ export function log(...args: any[]) {
 export function logError(...args: any[]) {
   console.error(`[${Settings.appName}]`, ...args);
 }
+
+export function alertError(...args: any[]) {
+  alert(`[${Settings.appName}] ${args.join(" ")}`);
+}
