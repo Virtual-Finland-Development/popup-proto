@@ -11,5 +11,5 @@ export function logError(...args: any[]) {
 }
 
 export function alertError(...args: any[]) {
-  alert(`[${Settings.appName}] ${args.join(" ")}`);
+  alert(`[${Settings.appName}] ${JSON.stringify(args)}`);
 }
