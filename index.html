@@ -22,6 +22,7 @@
     </div>
   </div>
 
+  <div class="pluginEventsLoadingIndicator"></div>
   <div class="pluginEventsOutputArea">
 
   </div>
@@ -31,18 +32,30 @@
     const PluginEventsListener = {
       start() {
         this.log("Listening for plugin events..");
-        window.document.addEventListener("pluginProfileData", this.handleEvent.bind(this));
+        window.document.addEventListener("pluginProfileData", this.getEventHandler());
+        window.document.addEventListener("pluginProfileData::loading", this.getEventHandler());
       },
       stop() {
         this.log("Stopped listening for plugin events..");
-        window.document.removeEventListener("pluginProfileData", this.handleEvent.bind(this));
+        window.document.removeEventListener("pluginProfileData", this.getEventHandler());
+        window.document.removeEventListener("pluginProfileData::loading", this.getEventHandler());
       },
-      handleEvent(event) {
-        this.log("Received plugin event", event);
-        if (event.type === "pluginProfileData") {
-          const outputArea = document.querySelector(".pluginEventsOutputArea");
-          outputArea.innerHTML = `<p>Profile data received from plugin:</p><pre>${JSON.stringify(event.detail, null, 2)}</pre>`;
+      eventHandler: null,
+      getEventHandler() {
+        if (this.eventHandler == null) {
+          this.eventHandler = (event) => {
+            this.log("Received plugin event", event);
+            if (event.type === "pluginProfileData::loading") {
+              const outputArea = document.querySelector(".pluginEventsLoadingIndicator");
+              outputArea.innerHTML = event.detail.isLoading ? `<p>Loading..</pre>` : '';
+            }
+            if (event.type === "pluginProfileData") {
+              const outputArea = document.querySelector(".pluginEventsOutputArea");
+              outputArea.innerHTML = `<p>Profile data received from plugin:</p><pre>${JSON.stringify(event.detail, null, 2)}</pre>`;
+            }
+          };
         }
+        return this.eventHandler;
       },
       log(...message) {
         console.log("[PluginEventsListener]", ...message);

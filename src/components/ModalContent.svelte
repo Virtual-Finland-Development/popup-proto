@@ -21,7 +21,6 @@
         }
     }
 
-    
     onMount(async () => {
         // Coming back from the authentication service redirect
         if (popUrlQueryParamFromCurrentUrl("vfAuthFlowEngaged")) {
@@ -39,13 +38,16 @@
         const { idToken } = state.get("sessionStorage::loggedIn");
         const { consentToken } = state.get("variableStorage::consentSituation");
 
-        isLoading = true;
-        const profileData = await fetchUserProfileData(idToken, consentToken);
-        isLoading = false;
-
-        emitProfileDataToParentSite(profileData);
-
-        return profileData;
+        setAndEmitLoadingState(true);
+        try {
+            const profileData = await fetchUserProfileData(idToken, consentToken);
+            setAndEmitLoadingState(false);
+            emitProfileDataToParentSite(profileData);
+            return profileData;
+        } catch (error) {
+            setAndEmitLoadingState(false);
+            throw error;
+        }
     }
 
     async function checkUserProfileDataConsent() {
@@ -58,15 +60,30 @@
 
         const { idToken } = state.get("sessionStorage::loggedIn");
 
-        isLoading = true;
-        const consentSituation = await fetchUserProfileDataConsent(idToken, USER_PROFILE_CONSENT_SOURCE);
-        isLoading = false;
+        setAndEmitLoadingState(true);
+        try {
+            const consentSituation = await fetchUserProfileDataConsent(idToken, USER_PROFILE_CONSENT_SOURCE);
+            setAndEmitLoadingState(false);
 
-        if (consentSituation.consentStatus === "consentGranted") {
-            state.set("variableStorage::consentSituation", consentSituation);
-        } else {
-            redirectToConsentService(consentSituation, { queryParams: { vfAuthFlowEngaged: true }})
+            if (consentSituation.consentStatus === "consentGranted") {
+                state.set("variableStorage::consentSituation", consentSituation);
+            } else {
+                redirectToConsentService(consentSituation, { queryParams: { vfAuthFlowEngaged: true }})
+            }
+        } catch (e) {
+            setAndEmitLoadingState(false);
+            throw e;
         }
+    }
+
+    function setAndEmitLoadingState(loading) {
+        isLoading = loading;
+        const loadingEvent = new CustomEvent("pluginProfileData::loading", {
+            detail: {
+                isLoading: loading,
+            }
+        });
+        window.document.dispatchEvent(loadingEvent);
     }
 
     function emitProfileDataToParentSite(profileData) {
