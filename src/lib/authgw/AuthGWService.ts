@@ -1,14 +1,19 @@
 import Settings from "../../Settings";
 import { ensureUrlQueryParams } from "../utils/urls";
-import { generateAppContext } from "./authUtils";
+import { generateAppContext, redirectWithIFrame } from "./authUtils";
 
 /**
  *
  * @param options
  */
-export function redirectToAuthenticationService(options?: { redirectUrl?: string; queryParams?: UrlQueryParams }) {
+export function redirectToAuthenticationService(options?: { redirectUrl?: string; queryParams?: UrlQueryParams; useIFrame?: boolean }) {
   const redirectUrl = `${Settings.authenticationService}/auth/openid/testbed/authentication-request?appContext=${generateAppContext(options)}`;
-  window.location.assign(redirectUrl);
+
+  if (options?.useIFrame) {
+    redirectWithIFrame(redirectUrl);
+  } else {
+    window.location.assign(redirectUrl);
+  }
 }
 
 /**
@@ -72,11 +77,16 @@ export async function fetchUserProfileDataConsent(idToken: string, dataSourceUri
   return consentSituation;
 }
 
-export function redirectToConsentService(consentSituation: IConsentSituation, options?: { redirectUrl?: string; queryParams?: UrlQueryParams }) {
+export function redirectToConsentService(consentSituation: IConsentSituation, options?: { redirectUrl?: string; queryParams?: UrlQueryParams; useIFrame?: boolean }) {
   if (!consentSituation.redirectUrl) {
     throw new Error("Invalid consent situation");
   }
 
   const redirectUrl = ensureUrlQueryParams(consentSituation.redirectUrl, { appContext: generateAppContext(options) });
-  window.location.assign(redirectUrl);
+
+  if (options?.useIFrame) {
+    redirectWithIFrame(redirectUrl);
+  } else {
+    window.location.assign(redirectUrl);
+  }
 }

@@ -44,4 +44,6 @@
   });
 
 </script>
-<Modal isOpenModal={isOpenModal} on:closeModal={closeModal} state={state} />
+<div id="protoPluginApp">
+  <Modal isOpenModal={isOpenModal} on:closeModal={closeModal} state={state} />
+</div>

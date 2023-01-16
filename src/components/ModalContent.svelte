@@ -10,15 +10,21 @@
     export let closeModal;
 
     let isLoading = false;
+    let useIFrame = false;
 
-  
     function onFetchProfileDataBtnClick() {
         if (state.is("sessionStorage::loggedIn")) {
             fetchProfileData();
             closeModal();
         } else {
-            redirectToAuthenticationService({ queryParams: { vfAuthFlowEngaged: true }})
+            redirectToAuthenticationService({ queryParams: { vfAuthFlowEngaged: true }, useIFrame: useIFrame})
         }
+    }
+
+    function onResetLoginBtnClick() {
+        state.remove("sessionStorage::loggedIn");
+        state.remove("variableStorage::consentSituation");
+        window.location.reload();
     }
 
     onMount(async () => {
@@ -68,7 +74,7 @@
             if (consentSituation.consentStatus === "consentGranted") {
                 state.set("variableStorage::consentSituation", consentSituation);
             } else {
-                redirectToConsentService(consentSituation, { queryParams: { vfAuthFlowEngaged: true }})
+                redirectToConsentService(consentSituation, { queryParams: { vfAuthFlowEngaged: true }, useIFrame: useIFrame})
             }
         } catch (e) {
             setAndEmitLoadingState(false);
@@ -95,19 +101,30 @@
     }
 </script>
 
-<div class="testbedContent">
+<div class="protoPluginAppContent">
     <h3>Testbed modal</h3>
     <div class="modalContent">
     {#if isLoading}
         <p>Loading..</p>
     {:else}
+        <p>Logged in: {state.is("sessionStorage::loggedIn") ? "yes" : "no"}</p>
+        <p>Consent: {state.is("variableStorage::consentSituation") ? "yes" : "no"}</p>
+        <p>
+            <label>
+                <input type=checkbox bind:checked={useIFrame} />
+                Use iframe login
+            </label>
+        </p>
+        
         <button on:click={onFetchProfileDataBtnClick}>Fetch profile data</button>
+        <button on:click={onResetLoginBtnClick}>Reset</button>
     {/if}
+        
     </div>
 </div>
 
 <style>
-    .testbedContent {
+    .protoPluginAppContent {
         padding: 1rem;
         background: inherit;
     }
